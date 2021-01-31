@@ -23,7 +23,6 @@ async function searchShows(query) {
   // TODO: Make an ajax request to the searchShows api.  Remove
   // hard coded data.
   let res = await axios.get(`http://api.tvmaze.com/search/shows?q=${query}`);
-  console.log(res);
 
   let shows = res.data.map((result) => {
     let show = result.show;
@@ -76,7 +75,7 @@ function populateShows(shows) {
 
 function populateEpisodes(episodes) {
   const $episodesList = $("#episodes-list");
-  $showsList.empty();
+  $episodesList.empty();
 
   for (let ep of episodes) {
     let $item = $(
@@ -85,6 +84,7 @@ function populateEpisodes(episodes) {
 
     $episodesList.append($item);
   }
+  $("#episodes-area").show();
 }
 /** Handle search form submission:
  *    - hide episodes area
@@ -103,19 +103,6 @@ $("#search-form").on("submit", async function handleSearch(evt) {
 
   populateShows(shows);
 });
-
-$(".get-episodes").on("click", async function handleEpSearch(evt) {
-  evt.preventDefault();
-
-  let showId = this.id;
-  let episodes = await getEpisodes(showId);
-
-  populateEpisodes(episodes);
-});
-
-/** Given a show ID, return list of episodes:
- *      { id, name, season, number }
- */
 
 async function getEpisodes(id) {
   let episodeRes = await axios.get(
@@ -137,3 +124,20 @@ async function getEpisodes(id) {
   //       http://api.tvmaze.com/shows/SHOW-ID-HERE/episodes
   // TODO: return array-of-episode-info, as described in docstring above
 }
+
+$("#shows-list").on(
+  "click",
+  ".get-episodes",
+  async function handleEpSearch(evt) {
+    evt.preventDefault();
+
+    let showId = $(evt.target).closest(".Show").data("show-id");
+    let episodes = await getEpisodes(showId);
+
+    populateEpisodes(episodes);
+  }
+);
+
+/** Given a show ID, return list of episodes:
+ *      { id, name, season, number }
+ */
